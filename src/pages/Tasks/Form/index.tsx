@@ -2,7 +2,7 @@ import React, { ChangeEvent } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { Box, Button, Container, TextField } from "@material-ui/core";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 import {
   makeStyles,
