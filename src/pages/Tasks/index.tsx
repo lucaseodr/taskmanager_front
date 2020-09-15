@@ -7,9 +7,6 @@ import {
   makeStyles,
 } from "@material-ui/core/styles";
 
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
-
 import { Container, IconButton } from "@material-ui/core";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -27,7 +24,10 @@ import DetailsIcon from "@material-ui/icons/Details";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 
 import api from "../../services/api";
+
 import moment from "moment";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 const StyledTableCell = withStyles((theme: Theme) =>
   createStyles({
@@ -97,6 +97,7 @@ const Index = () => {
 
   async function completeTask(id: number) {
     const response = await api.patch(`/tasks/${id}`);
+
     toast.dark(`${response.data.message}`, {
       position: "top-right",
       autoClose: 5000,
@@ -106,11 +107,23 @@ const Index = () => {
       draggable: true,
       progress: undefined,
     });
+
     loadTasks();
   }
 
   async function deleteTask(id: number) {
-    await api.delete(`/tasks/${id}`);
+    const response = await api.delete(`/tasks/${id}`);
+
+    toast.dark(`${response.data.message}`, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+
     loadTasks();
   }
 
@@ -167,7 +180,10 @@ const Index = () => {
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton className={classes.icons}>
+                  <IconButton
+                    className={classes.icons}
+                    onClick={() => deleteTask(task.id)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </StyledTableCell>

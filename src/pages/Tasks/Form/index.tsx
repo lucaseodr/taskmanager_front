@@ -2,11 +2,14 @@ import React, { ChangeEvent } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { Box, Button, Container, TextField } from "@material-ui/core";
 
+import { ToastContainer, toast } from "react-toastify";
+
 import {
   makeStyles,
   createStyles,
   Theme as AugmentedTheme,
 } from "@material-ui/core/styles";
+
 import api from "../../../services/api";
 
 const useStyles = makeStyles((theme: AugmentedTheme) =>
@@ -58,8 +61,26 @@ const Index = () => {
     e.preventDefault();
     if (id !== undefined) {
       await api.put(`/tasks/${id}`, model);
+      toast.dark(`Taks Updated!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } else {
       await api.post("/tasks", model);
+      toast.dark(`Taks Created!`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
     backBtn();
   }
