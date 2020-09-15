@@ -1,10 +1,14 @@
 import React from "react";
+import { useHistory } from "react-router-dom";
 import {
   withStyles,
   Theme,
   createStyles,
   makeStyles,
 } from "@material-ui/core/styles";
+
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 
 import { Container, IconButton } from "@material-ui/core";
 import Table from "@material-ui/core/Table";
@@ -14,7 +18,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
 
@@ -72,6 +75,7 @@ interface Task {
 const Index = () => {
   const classes = useStyles();
   const [tasks, setTasks] = React.useState<Task[]>([]);
+  const history = useHistory();
 
   function formateDate(date: Date) {
     return moment(date).format("DD/MM/YYYY");
@@ -79,8 +83,35 @@ const Index = () => {
 
   async function loadTasks() {
     const response = await api.get("/tasks");
-    console.log(response);
     setTasks(response.data);
+    console.log(response);
+  }
+
+  function newTask() {
+    history.push("/create_task");
+  }
+
+  function editTask(id: number) {
+    history.push(`/create_task/${id}`);
+  }
+
+  async function completeTask(id: number) {
+    const response = await api.patch(`/tasks/${id}`);
+    toast.dark(`${response.data.message}`, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    loadTasks();
+  }
+
+  async function deleteTask(id: number) {
+    await api.delete(`/tasks/${id}`);
+    loadTasks();
   }
 
   React.useEffect(() => {
@@ -91,7 +122,9 @@ const Index = () => {
     <Container maxWidth="md">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <h1>Tasks</h1>
-        <Button variant="contained">New Task</Button>
+        <Button onClick={newTask} variant="contained">
+          New Task
+        </Button>
       </Box>
 
       <TableContainer component={Paper}>
@@ -114,35 +147,36 @@ const Index = () => {
                   {formateDate(task.updated_at)}
                 </StyledTableCell>
                 <StyledTableCell align="center">
-                  {task.finished ? "Enabled" : "Disabled"}
+                  {task.finished ? "Completed" : "Pending"}
                 </StyledTableCell>
                 <StyledTableCell align="center">
-                  <Tooltip title="Details">
-                    <IconButton className={classes.icons}>
-                      <DetailsIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Complete">
-                    <IconButton className={classes.icons}>
-                      <CheckCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton className={classes.icons}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton className={classes.icons}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
+                  <IconButton className={classes.icons}>
+                    <DetailsIcon />
+                  </IconButton>
+                  <IconButton
+                    disabled={task.finished}
+                    className={classes.icons}
+                    onClick={() => completeTask(task.id)}
+                  >
+                    <CheckCircleIcon />
+                  </IconButton>
+                  <IconButton
+                    disabled={task.finished}
+                    className={classes.icons}
+                    onClick={() => editTask(task.id)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton className={classes.icons}>
+                    <DeleteIcon />
+                  </IconButton>
                 </StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <ToastContainer />
     </Container>
   );
 };
